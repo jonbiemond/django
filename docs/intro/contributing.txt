@@ -95,9 +95,9 @@ For this tutorial, you'll need Git installed to download the current
 development version of Django and to generate a branch for the changes you
 make.
 
-To check whether or not you have Git installed, enter ``git`` into the command
-line. If you get messages saying that this command could not be found, you'll
-have to download and install it, see `Git's download page`__.
+To check whether you have Git installed, enter ``git`` into the command line.
+If you get messages saying that this command could not be found, you'll have
+to download and install it, see `Git's download page`__.
 
 If you're not that familiar with Git, you can always find out more about its
 commands (once it's installed) by typing ``git help`` into the command line.
@@ -356,8 +356,8 @@ test method we added, with this error:
 
     ImportError: cannot import name 'make_toast' from 'django.shortcuts'
 
-If all of the tests passed, then you'll want to make sure that you added the
-new test shown above to the appropriate folder and file name.
+If all of the tests have passed, then you'll want to make sure that you have
+added the new test shown above to the appropriate folder and file name.
 
 Writing the code for your ticket
 ================================
