@@ -139,7 +139,7 @@ Create a new virtual environment by running:
 
 .. console::
 
-    $ python3 -m venv ~/.virtualenvs/djangodev
+    $ python -m venv ~/.virtualenvs/djangodev
 
 The path is where the new environment will be saved on your computer.
 
