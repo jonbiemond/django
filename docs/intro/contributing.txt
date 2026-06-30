@@ -171,15 +171,26 @@ command line to help you keep track of which one you are using. Anything you
 install through ``pip`` while this name is displayed will be installed in that
 virtual environment, isolated from other environments and system-wide packages.
 
-Go ahead and install the previously cloned copy of Django:
+If you have not already, ``cd`` into the directory where Git previously cloned
+Django:
 
 .. console::
 
-    $ python -m pip install -e /path/to/your/local/clone/django/
+   $ cd django/
 
-The installed version of Django is now pointing at your local copy by
-installing in editable mode. You will immediately see any changes you make to
-it, which is of great help when testing your first contribution.
+Now go ahead and install your local copy of Django:
+
+.. console::
+
+    $ python -m pip install --editable .
+
+The ``.`` is a shortcut for the current directory. And the ``--editable`` flag
+instructs pip to perform an editable installation. That means to test any
+changes you do not have to reinstall Django, they will take place immediately.
+You can learn more about editable installs from the `Python Packaging
+Authority's user guide`__.
+
+__ https://setuptools.pypa.io/en/latest/userguide/development_mode.html
 
 Running Django's test suite for the first time
 ==============================================
