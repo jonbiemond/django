@@ -541,6 +541,13 @@ message guidelines <committing-guidelines>` and write a message like:
 
     Fixed #99999 -- Added a shortcut function to make toast.
 
+.. admonition:: Using Vim
+
+    By default, Git uses the Vim text editor. Press ``i`` to enter Insert Mode and
+    write your message. Hit ``<Esc>`` to switch back to Normal Mode. When you are
+    satisfied with the message type ``:wq`` followed by hitting the return/enter key
+    to write the message and quit Vim.
+
 Pushing the commit and making a pull request
 ============================================
 
