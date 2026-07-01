@@ -203,12 +203,11 @@ haven't broken other parts of Django. If you've never run Django's test suite
 before, it's a good idea to run it once beforehand to get familiar with its
 output.
 
-Before running the test suite, enter the Django ``tests/`` directory using the
-``cd tests`` command, and install test dependencies by running:
+Before running the test suite, install test dependencies by running:
 
 .. console::
 
-    $ python -m pip install -r requirements/py3.txt
+    $ python -m pip install -r tests/requirements/py3.txt
 
 If you encounter an error during the installation, your system might be missing
 a dependency for one or more of the Python packages. Consult the failing
@@ -219,7 +218,7 @@ Now we are ready to run the test suite:
 
 .. console::
 
-    $ ./runtests.py
+    $ ./tests/runtests.py
 
 Now sit back and relax. Django's entire test suite has thousands of tests, and
 it takes at least a few minutes to run, depending on the speed of your
@@ -354,11 +353,11 @@ Running your new test
 
 Since we haven't made any modifications to ``django.shortcuts`` yet, our test
 should fail. Let's run all the tests in the ``shortcuts`` folder to make sure
-that's really what happens. ``cd`` to the Django ``tests/`` directory and run:
+that's really what happens:
 
 .. console::
 
-    $ ./runtests.py shortcuts
+    $ ./tests/runtests.py shortcuts
 
 If the tests ran correctly, you should see one failure corresponding to the
 test method we added, with this error:
@@ -382,12 +381,11 @@ bottom, add::
         return "toast"
 
 Now we need to make sure that the test we wrote earlier passes, so we can see
-whether the code we added is working correctly. Again, navigate to the Django
-``tests/`` directory and run:
+whether the code we added is working correctly:
 
 .. console::
 
-    $ ./runtests.py shortcuts
+    $ ./tests/runtests.py shortcuts
 
 Everything should pass. If it doesn't, make sure you correctly added the
 function to the correct file.
@@ -401,12 +399,11 @@ hasn't introduced any bugs into other areas of Django. While successfully
 passing the entire test suite doesn't guarantee your code is bug free, it does
 help identify many bugs and regressions that might otherwise go unnoticed.
 
-To run the entire Django test suite, ``cd`` into the Django ``tests/``
-directory and run:
+Run the entire Django test suite:
 
 .. console::
 
-    $ ./runtests.py
+    $ ./tests/runtests.py
 
 Writing Documentation
 =====================
