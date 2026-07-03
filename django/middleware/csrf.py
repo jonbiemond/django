@@ -422,7 +422,7 @@ class CsrfViewMiddleware(MiddlewareMixin):
 
         # Assume that anything not defined as 'safe' by RFC 9110 needs
         # protection
-        if request.method in ("GET", "HEAD", "OPTIONS", "TRACE"):
+        if request.method in ("GET", "HEAD", "OPTIONS", "TRACE", "QUERY"):
             return self._accept(request)
 
         if getattr(request, "_dont_enforce_csrf_checks", False):

@@ -450,6 +450,16 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
         resp = mw.process_view(req, post_form_view, (), {})
         self.assertIsNone(resp)
 
+    def test_no_csrf_cookie_safe_method(self):
+        """
+        If the request method is safe, the middleware lets it through.
+        """
+        req = self._get_request(method="QUERY")
+        mw = CsrfViewMiddleware(protected_view)
+        mw.process_request(req)
+        resp = mw.process_view(req, protected_view, (), {})
+        self.assertIsNone(resp)
+
     def test_process_request_csrf_cookie_no_token_exempt_view(self):
         """
         If a CSRF cookie is present and no token, but the csrf_exempt decorator
