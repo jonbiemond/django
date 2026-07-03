@@ -96,6 +96,22 @@ def post_view(request):
     return HttpResponse(t.render(c))
 
 
+def query_view(request):
+    if request.method == "QUERY":
+        if request.POST:
+            t = Template(
+                "Data received: {{ data }} is the value.", name="QUERY Template"
+            )
+            c = Context({"data": request.POST["value"]})
+        else:
+            # Implement as necessary for testing
+            raise NotImplementedError()
+    else:
+        t = Template("Viewing GET page.", name="Empty GET Template")
+        c = Context()
+    return HttpResponse(t.render(c))
+
+
 def post_then_get_view(request):
     """
     A view that expects a POST request, returns a redirect response
