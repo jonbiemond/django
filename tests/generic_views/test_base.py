@@ -26,6 +26,10 @@ class SimplePostView(SimpleView):
     post = SimpleView.get
 
 
+class SimpleQueryView(SimpleView):
+    query = SimpleView.get
+
+
 class PostOnlyView(View):
     def post(self, request):
         return HttpResponse("This view only accepts POST")
@@ -149,6 +153,12 @@ class ViewTest(LoggingAssertionMixin, SimpleTestCase):
             405,
         )
 
+    def test_query(self):
+        """
+        Test a view that allows QUERY responds with HTTP 200.
+        """
+        self._assert_simple(SimpleQueryView.as_view()(self.rf.query("/")))
+
     def test_invalid_keyword_argument(self):
         """
         View arguments must be predefined on the class and can't
@@ -239,6 +249,15 @@ class ViewTest(LoggingAssertionMixin, SimpleTestCase):
         view = PostOnlyView.as_view()
         response = view(request)
         self._assert_allows(response, "POST")
+
+    def test_options_for_get_and_query_view(self):
+        """
+        A view implementing GET and QUERY allows GET, HEAD and QUERY.
+        """
+        request = self.rf.options("/")
+        view = SimpleQueryView.as_view()
+        response = view(request)
+        self._assert_allows(response, "GET", "HEAD", "QUERY")
 
     def _assert_allows(self, response, *expected_methods):
         "Assert allowed HTTP methods reported in the Allow response header"
@@ -569,6 +588,12 @@ class RedirectViewTest(LoggingAssertionMixin, SimpleTestCase):
     def test_redirect_DELETE(self):
         "Default is a temporary redirect"
         response = RedirectView.as_view(url="/bar/")(self.rf.delete("/foo/"))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/bar/")
+
+    def test_redirect_QUERY(self):
+        "Default is a temporary redirect"
+        response = RedirectView.as_view(url="/bar/")(self.rf.query("/foo/"))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/bar/")
 
