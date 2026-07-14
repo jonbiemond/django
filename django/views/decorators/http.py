@@ -73,9 +73,9 @@ require_GET.__doc__ = "Decorator to require that a view only accepts the GET met
 require_POST = require_http_methods(["POST"])
 require_POST.__doc__ = "Decorator to require that a view only accepts the POST method."
 
-require_safe = require_http_methods(["GET", "HEAD"])
+require_safe = require_http_methods(["GET", "HEAD", "QUERY"])
 require_safe.__doc__ = (
-    "Decorator to require that a view only accepts safe methods: GET and HEAD."
+    "Decorator to require that a view only accepts safe methods: GET, HEAD and QUERY."
 )
 
 

@@ -42,6 +42,8 @@ class RequireHttpMethodsTest(SimpleTestCase):
         self.assertIsInstance(my_view(request), HttpResponseNotAllowed)
         request.method = "DELETE"
         self.assertIsInstance(my_view(request), HttpResponseNotAllowed)
+        request.method = "QUERY"
+        self.assertIsInstance(my_view(request), HttpResponseNotAllowed)
 
     async def test_require_http_methods_methods_async_view(self):
         @require_http_methods(["GET", "PUT"])
@@ -59,6 +61,8 @@ class RequireHttpMethodsTest(SimpleTestCase):
         self.assertIsInstance(await my_view(request), HttpResponseNotAllowed)
         request.method = "DELETE"
         self.assertIsInstance(await my_view(request), HttpResponseNotAllowed)
+        request.method = "QUERY"
+        self.assertIsInstance(await my_view(request), HttpResponseNotAllowed)
 
 
 class RequireSafeDecoratorTest(SimpleTestCase):
@@ -71,6 +75,8 @@ class RequireSafeDecoratorTest(SimpleTestCase):
         request.method = "GET"
         self.assertIsInstance(my_safe_view(request), HttpResponse)
         request.method = "HEAD"
+        self.assertIsInstance(my_safe_view(request), HttpResponse)
+        request.method = "QUERY"
         self.assertIsInstance(my_safe_view(request), HttpResponse)
         request.method = "POST"
         self.assertIsInstance(my_safe_view(request), HttpResponseNotAllowed)
@@ -88,6 +94,8 @@ class RequireSafeDecoratorTest(SimpleTestCase):
         request.method = "GET"
         self.assertIsInstance(await async_view(request), HttpResponse)
         request.method = "HEAD"
+        self.assertIsInstance(await async_view(request), HttpResponse)
+        request.method = "QUERY"
         self.assertIsInstance(await async_view(request), HttpResponse)
         request.method = "POST"
         self.assertIsInstance(await async_view(request), HttpResponseNotAllowed)
