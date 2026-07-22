@@ -362,11 +362,13 @@ def _generate_cache_key(request, method, headerlist, key_prefix):
         # Use the netstring delimiter (with trailing comma).
         ctx.update(b"%d:%s," % (len(data), data))
     url = md5(request.build_absolute_uri().encode("ascii"), usedforsecurity=False)
-    cache_key = "views.decorators.cache.cache_page.%s.%s.%s.%s" % (
+    body = md5(request.body, usedforsecurity=False)
+    cache_key = "views.decorators.cache.cache_page.%s.%s.%s.%s.%s" % (
         key_prefix,
         method,
         url.hexdigest(),
         ctx.hexdigest(),
+        body.hexdigest(),
     )
     return _i18n_cache_key_suffix(request, cache_key)
 

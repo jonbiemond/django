@@ -2348,7 +2348,8 @@ class CacheUtils(SimpleTestCase):
         self.assertEqual(
             get_cache_key(request),
             "views.decorators.cache.cache_page.settingsprefix.GET."
-            "18a03f9c9649f7d684af5db3524f5c99.d41d8cd98f00b204e9800998ecf8427e",
+            "18a03f9c9649f7d684af5db3524f5c99.d41d8cd98f00b204e9800998ecf8427e."
+            "d41d8cd98f00b204e9800998ecf8427e",
         )
         # A specified key_prefix is taken into account.
         key_prefix = "localprefix"
@@ -2356,7 +2357,8 @@ class CacheUtils(SimpleTestCase):
         self.assertEqual(
             get_cache_key(request, key_prefix=key_prefix),
             "views.decorators.cache.cache_page.localprefix.GET."
-            "18a03f9c9649f7d684af5db3524f5c99.d41d8cd98f00b204e9800998ecf8427e",
+            "18a03f9c9649f7d684af5db3524f5c99.d41d8cd98f00b204e9800998ecf8427e."
+            "d41d8cd98f00b204e9800998ecf8427e",
         )
 
     def test_get_cache_key_with_query(self):
@@ -2370,7 +2372,23 @@ class CacheUtils(SimpleTestCase):
         self.assertEqual(
             get_cache_key(request),
             "views.decorators.cache.cache_page.settingsprefix.GET."
-            "beaf87a9a99ee81c673ea2d67ccbec2a.d41d8cd98f00b204e9800998ecf8427e",
+            "beaf87a9a99ee81c673ea2d67ccbec2a.d41d8cd98f00b204e9800998ecf8427e."
+            "d41d8cd98f00b204e9800998ecf8427e",
+        )
+
+    def test_get_cache_key_with_content(self):
+        request = self.factory.query(self.path, {"test": 1})
+        response = HttpResponse()
+        # Expect None if no headers have been set yet.
+        self.assertIsNone(get_cache_key(request))
+        # Set headers to an empty list.
+        learn_cache_key(request, response)
+        # The content is taken into account.
+        self.assertEqual(
+            get_cache_key(request, method="QUERY"),
+            "views.decorators.cache.cache_page.settingsprefix.QUERY."
+            "18a03f9c9649f7d684af5db3524f5c99.d41d8cd98f00b204e9800998ecf8427e."
+            "00e9fd0f7ada214b7da79d12dfba88de",
         )
 
     def test_cache_key_varies_by_url(self):
@@ -2380,6 +2398,16 @@ class CacheUtils(SimpleTestCase):
         request1 = self.factory.get(self.path, headers={"host": "sub-1.example.com"})
         learn_cache_key(request1, HttpResponse())
         request2 = self.factory.get(self.path, headers={"host": "sub-2.example.com"})
+        learn_cache_key(request2, HttpResponse())
+        self.assertNotEqual(get_cache_key(request1), get_cache_key(request2))
+
+    def test_cache_key_varies_by_content(self):
+        """
+        get_cache_key keys differ by content
+        """
+        request1 = self.factory.query(self.path, data={"key": "value-1"})
+        learn_cache_key(request1, HttpResponse())
+        request2 = self.factory.query(self.path, data={"key": "value-2"})
         learn_cache_key(request2, HttpResponse())
         self.assertNotEqual(get_cache_key(request1), get_cache_key(request2))
 
@@ -2393,7 +2421,8 @@ class CacheUtils(SimpleTestCase):
         self.assertEqual(
             get_cache_key(request),
             "views.decorators.cache.cache_page.settingsprefix.GET."
-            "18a03f9c9649f7d684af5db3524f5c99.3b59035bd3b34e30981dc990dd93acbb",
+            "18a03f9c9649f7d684af5db3524f5c99.3b59035bd3b34e30981dc990dd93acbb."
+            "d41d8cd98f00b204e9800998ecf8427e",
         )
 
     def test_learn_cache_key_strips_whitespace(self):
@@ -2954,6 +2983,36 @@ class CacheMiddlewareTest(SimpleTestCase):
         self.assertIsNotNone(result)
         self.assertEqual(result.content, b"Hello World 1")
 
+    def test_middleware_query(self):
+        middleware = CacheMiddleware(hello_world_view)
+        prefix_middleware = CacheMiddleware(hello_world_view, key_prefix="prefix1")
+        timeout_middleware = CacheMiddleware(hello_world_view, cache_timeout=1)
+
+        request = self.factory.query("/view/")
+
+        # Put the request through the request middleware
+        result = middleware.process_request(request)
+        self.assertIsNone(result)
+
+        response = hello_world_view(request, "1")
+
+        # Now put the response through the response middleware
+        response = middleware.process_response(request, response)
+
+        # Repeating the request should result in a cache hit
+        result = middleware.process_request(request)
+        self.assertIsNotNone(result)
+        self.assertEqual(result.content, b"Hello World 1")
+
+        # The same request through a different middleware won't hit
+        result = prefix_middleware.process_request(request)
+        self.assertIsNone(result)
+
+        # The same request with a timeout _will_ hit
+        result = timeout_middleware.process_request(request)
+        self.assertIsNotNone(result)
+        self.assertEqual(result.content, b"Hello World 1")
+
     def test_view_decorator(self):
         # decorate the same view with different cache decorators
         default_view = cache_page(3)(hello_world_view)
@@ -3356,14 +3415,16 @@ class TestWithTemplateResponse(SimpleTestCase):
         self.assertEqual(
             get_cache_key(request),
             "views.decorators.cache.cache_page.settingsprefix.GET."
-            "58a0a05c8a5620f813686ff969c26853.d41d8cd98f00b204e9800998ecf8427e",
+            "58a0a05c8a5620f813686ff969c26853.d41d8cd98f00b204e9800998ecf8427e."
+            "d41d8cd98f00b204e9800998ecf8427e",
         )
         # A specified key_prefix is taken into account.
         learn_cache_key(request, response, key_prefix=key_prefix)
         self.assertEqual(
             get_cache_key(request, key_prefix=key_prefix),
             "views.decorators.cache.cache_page.localprefix.GET."
-            "58a0a05c8a5620f813686ff969c26853.d41d8cd98f00b204e9800998ecf8427e",
+            "58a0a05c8a5620f813686ff969c26853.d41d8cd98f00b204e9800998ecf8427e."
+            "d41d8cd98f00b204e9800998ecf8427e",
         )
 
     def test_get_cache_key_with_query(self):
@@ -3378,7 +3439,24 @@ class TestWithTemplateResponse(SimpleTestCase):
         self.assertEqual(
             get_cache_key(request),
             "views.decorators.cache.cache_page.settingsprefix.GET."
-            "0f1c2d56633c943073c4569d9a9502fe.d41d8cd98f00b204e9800998ecf8427e",
+            "0f1c2d56633c943073c4569d9a9502fe.d41d8cd98f00b204e9800998ecf8427e."
+            "d41d8cd98f00b204e9800998ecf8427e",
+        )
+
+    def test_get_cache_key_with_content(self):
+        request = self.factory.query(self.path, {"test": 1})
+        template = engines["django"].from_string("This is a test")
+        response = TemplateResponse(HttpRequest(), template)
+        # Expect None if no headers have been set yet.
+        self.assertIsNone(get_cache_key(request))
+        # Set headers to an empty list.
+        learn_cache_key(request, response)
+        # The content is taken into account.
+        self.assertEqual(
+            get_cache_key(request, method="QUERY"),
+            "views.decorators.cache.cache_page.settingsprefix.QUERY."
+            "58a0a05c8a5620f813686ff969c26853.d41d8cd98f00b204e9800998ecf8427e."
+            "00e9fd0f7ada214b7da79d12dfba88de",
         )
 
 
